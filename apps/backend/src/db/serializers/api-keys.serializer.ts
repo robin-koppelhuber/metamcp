@@ -23,6 +23,8 @@ export class ApiKeysSerializer {
       created_at: Date;
       is_active: boolean;
       user_id: string | null;
+      scope_restricted: boolean;
+      endpoint_uuids: string[];
     }>,
   ) {
     return dbApiKeys.map((apiKey) => ({
@@ -32,6 +34,8 @@ export class ApiKeysSerializer {
       created_at: apiKey.created_at,
       is_active: apiKey.is_active,
       user_id: apiKey.user_id,
+      scope_restricted: apiKey.scope_restricted,
+      endpoint_uuids: apiKey.endpoint_uuids,
     }));
   }
 

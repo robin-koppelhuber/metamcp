@@ -12,6 +12,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -365,12 +366,32 @@ export const apiKeysTable = pgTable(
       .notNull()
       .defaultNow(),
     is_active: boolean("is_active").notNull().default(true),
+    // true = the key only opens the endpoints listed in api_key_endpoints. An explicit flag (not "has rows"), so that
+    // deleting the last listed endpoint can never turn a restricted key into an unrestricted one.
+    scope_restricted: boolean("scope_restricted").notNull().default(false),
   },
   (table) => [
     index("api_keys_user_id_idx").on(table.user_id),
     index("api_keys_key_idx").on(table.key),
     index("api_keys_is_active_idx").on(table.is_active),
     unique("api_keys_name_per_user_idx").on(table.user_id, table.name),
+  ],
+);
+
+// Endpoints a restricted API key may open (only consulted when api_keys.scope_restricted is true)
+export const apiKeyEndpointsTable = pgTable(
+  "api_key_endpoints",
+  {
+    api_key_uuid: uuid("api_key_uuid")
+      .notNull()
+      .references(() => apiKeysTable.uuid, { onDelete: "cascade" }),
+    endpoint_uuid: uuid("endpoint_uuid")
+      .notNull()
+      .references(() => endpointsTable.uuid, { onDelete: "cascade" }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.api_key_uuid, table.endpoint_uuid] }),
+    index("api_key_endpoints_endpoint_uuid_idx").on(table.endpoint_uuid),
   ],
 );
 

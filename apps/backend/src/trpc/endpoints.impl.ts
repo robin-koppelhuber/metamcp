@@ -90,7 +90,10 @@ export const endpointsImplementations = {
           if (input.enableApiKeyAuth) {
             try {
               const userApiKeys = await apiKeysRepository.findByUserId(userId);
-              const activeApiKey = userApiKeys.find((key) => key.is_active);
+              // an endpoint-restricted key would be refused on the new endpoint, so only reuse an unrestricted one
+              const activeApiKey = userApiKeys.find(
+                (key) => key.is_active && !key.scope_restricted,
+              );
 
               if (activeApiKey) {
                 bearerToken = activeApiKey.key;

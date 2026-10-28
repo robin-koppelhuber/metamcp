@@ -92,6 +92,13 @@
       "when": 1764122318274,
       "tag": "0012_crazy_white_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793221079119,
+      "tag": "0013_scoped_api_keys",
+      "breakpoints": true
     }
   ]
 }

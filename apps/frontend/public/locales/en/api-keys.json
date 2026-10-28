@@ -33,5 +33,12 @@
   "ownershipDescription": "Private API keys are only visible to you. Public API keys can be used by anyone.",
   "hideApiKey": "Hide API key",
   "showApiKey": "Show API key",
-  "copyFullApiKey": "Copy full API key"
+  "copyFullApiKey": "Copy full API key",
+  "scope": "Scope",
+  "scopeAll": "All endpoints",
+  "scopeOnly": "Only",
+  "scopeNone": "No endpoints (opens nothing)",
+  "limitToEndpoints": "Limit to endpoints (optional)",
+  "limitToEndpointsDescription": "Leave everything unchecked for no limit (the key opens every endpoint it is otherwise allowed to). Check endpoints to restrict the key to exactly those.",
+  "noEndpointsAvailable": "No endpoints available"
 }

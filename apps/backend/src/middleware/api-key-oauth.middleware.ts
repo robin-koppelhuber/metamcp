@@ -2,6 +2,7 @@ import { DatabaseEndpoint } from "@repo/zod-types";
 import express from "express";
 
 import { ApiKeysRepository } from "../db/repositories/api-keys.repo";
+import { isEndpointAllowedForKey } from "../lib/api-key-scope";
 import {
   authRateLimiter,
   getAuthRateLimitIdentifier,
@@ -368,9 +369,29 @@ export const authenticateApiKey = async (
  * Check if API key has access to the endpoint
  */
 function checkApiKeyAccess(
-  validation: { user_id?: string | null },
+  validation: {
+    user_id?: string | null;
+    scope_restricted?: boolean;
+    allowed_endpoint_uuids?: string[];
+  },
   endpoint: DatabaseEndpoint,
 ): { allowed: boolean; message?: string } {
+  // Endpoint scoping of the key itself (applies in addition to the public/private rules below)
+  if (
+    !isEndpointAllowedForKey(
+      {
+        scope_restricted: validation.scope_restricted ?? false,
+        allowed_endpoint_uuids: validation.allowed_endpoint_uuids ?? [],
+      },
+      endpoint.uuid,
+    )
+  ) {
+    return {
+      allowed: false,
+      message: "This API key is restricted to other endpoints.",
+    };
+  }
+
   const isPublicApiKey = validation.user_id === null;
   const isPrivateEndpoint = endpoint.user_id !== null;
 

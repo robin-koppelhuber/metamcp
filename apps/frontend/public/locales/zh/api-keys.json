@@ -33,5 +33,12 @@
   "ownershipDescription": "私有 API 密钥只对您可见。公开 API 密钥可供任何人使用。",
   "hideApiKey": "隐藏 API 密钥",
   "showApiKey": "显示 API 密钥",
-  "copyFullApiKey": "复制完整 API 密钥"
+  "copyFullApiKey": "复制完整 API 密钥",
+  "scope": "范围",
+  "scopeAll": "所有端点",
+  "scopeOnly": "仅限",
+  "scopeNone": "无端点（无法访问任何端点）",
+  "limitToEndpoints": "限制为指定端点（可选）",
+  "limitToEndpointsDescription": "全部不勾选表示不限制（密钥可访问其本来有权访问的所有端点）。勾选端点则仅限这些端点。",
+  "noEndpointsAvailable": "没有可用的端点"
 }

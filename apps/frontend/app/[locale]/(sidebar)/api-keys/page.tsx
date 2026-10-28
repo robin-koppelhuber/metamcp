@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,8 @@ export default function ApiKeysPage() {
   const { t } = useTranslations();
 
   const { data: apiKeys, refetch } = trpc.frontend.apiKeys.list.useQuery();
+  const { data: endpointsData } = trpc.frontend.endpoints.list.useQuery();
+  const endpointOptions = endpointsData?.data ?? [];
   const createMutation = trpc.frontend.apiKeys.create.useMutation({
     onSuccess: (data) => {
       setNewApiKey(data.key);
@@ -97,6 +100,7 @@ export default function ApiKeysPage() {
     defaultValues: {
       name: "",
       user_id: undefined, // Will be set based on ownership selection
+      endpoint_uuids: undefined, // undefined = key may open every endpoint it is otherwise allowed to
     },
   });
 
@@ -251,6 +255,54 @@ export default function ApiKeysPage() {
                     {t("api-keys:ownershipDescription")}
                   </p>
                 </div>
+                <div>
+                  <Label className="text-sm font-medium">
+                    {t("api-keys:limitToEndpoints")}
+                  </Label>
+                  <div className="mt-2 max-h-40 space-y-2 overflow-y-auto rounded-md border p-3">
+                    {endpointOptions.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t("api-keys:noEndpointsAvailable")}
+                      </p>
+                    ) : (
+                      endpointOptions.map((endpoint) => {
+                        const selected = form.watch("endpoint_uuids") ?? [];
+                        return (
+                          <div
+                            key={endpoint.uuid}
+                            className="flex items-center gap-2"
+                          >
+                            <Checkbox
+                              id={`endpoint-${endpoint.uuid}`}
+                              checked={selected.includes(endpoint.uuid)}
+                              onCheckedChange={(checked) => {
+                                const next = checked
+                                  ? [...selected, endpoint.uuid]
+                                  : selected.filter(
+                                      (id) => id !== endpoint.uuid,
+                                    );
+                                // an empty selection means "no limit", never "limited to nothing"
+                                form.setValue(
+                                  "endpoint_uuids",
+                                  next.length > 0 ? next : undefined,
+                                );
+                              }}
+                            />
+                            <Label
+                              htmlFor={`endpoint-${endpoint.uuid}`}
+                              className="text-sm font-normal"
+                            >
+                              {endpoint.name}
+                            </Label>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("api-keys:limitToEndpointsDescription")}
+                  </p>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -287,13 +339,14 @@ export default function ApiKeysPage() {
               <TableHead>{t("api-keys:created")}</TableHead>
               <TableHead>{t("common:status")}</TableHead>
               <TableHead>{t("api-keys:ownership")}</TableHead>
+              <TableHead>{t("api-keys:scope")}</TableHead>
               <TableHead className="w-[100px]">{t("common:actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {apiKeys?.apiKeys?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
+                <TableCell colSpan={7} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <Key className="h-8 w-8 text-muted-foreground" />
                     <p className="text-muted-foreground">
@@ -372,6 +425,23 @@ export default function ApiKeysPage() {
                         ? t("api-keys:public")
                         : t("api-keys:private")}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {apiKey.scope_restricted ? (
+                      <Badge variant="outline" className="whitespace-normal">
+                        {apiKey.endpoint_uuids.length === 0
+                          ? t("api-keys:scopeNone")
+                          : `${t("api-keys:scopeOnly")}: ${apiKey.endpoint_uuids
+                              .map(
+                                (id) =>
+                                  endpointOptions.find((e) => e.uuid === id)
+                                    ?.name ?? "?",
+                              )
+                              .join(", ")}`}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">{t("api-keys:scopeAll")}</Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Button

@@ -20,6 +20,8 @@ export const CreateApiKeyFormSchema = z.object({
       "Name can only contain letters, numbers, spaces, underscores, and hyphens",
     ),
   user_id: z.string().nullable().optional(),
+  // omitted = key may open every endpoint it is otherwise allowed to; a list = only these endpoints
+  endpoint_uuids: z.array(z.string().uuid()).optional(),
 });
 
 export const CreateApiKeyRequestSchema = z.object({
@@ -32,6 +34,7 @@ export const CreateApiKeyRequestSchema = z.object({
       "Name can only contain letters, numbers, spaces, underscores, and hyphens",
     ),
   user_id: z.string().nullable().optional(),
+  endpoint_uuids: z.array(z.string().uuid()).optional(),
 });
 
 export const CreateApiKeyResponseSchema = z.object({
@@ -53,6 +56,8 @@ export const UpdateApiKeyRequestSchema = z.object({
     )
     .optional(),
   is_active: z.boolean().optional(),
+  // undefined = leave the scope as it is, null = make the key unrestricted, a list = restrict to these endpoints
+  endpoint_uuids: z.array(z.string().uuid()).nullable().optional(),
 });
 
 export const UpdateApiKeyResponseSchema = z.object({
@@ -81,6 +86,8 @@ export const ListApiKeysResponseSchema = z.object({
       created_at: z.date(),
       is_active: z.boolean(),
       user_id: z.string().nullable(),
+      scope_restricted: z.boolean(),
+      endpoint_uuids: z.array(z.string().uuid()),
     }),
   ),
 });
@@ -100,11 +107,13 @@ export const ApiKeyCreateInputSchema = z.object({
   name: z.string(),
   user_id: z.string().nullable().optional(),
   is_active: z.boolean().optional().default(true),
+  endpoint_uuids: z.array(z.string().uuid()).optional(),
 });
 
 export const ApiKeyUpdateInputSchema = z.object({
   name: z.string().optional(),
   is_active: z.boolean().optional(),
+  endpoint_uuids: z.array(z.string().uuid()).nullable().optional(),
 });
 
 // Type exports
