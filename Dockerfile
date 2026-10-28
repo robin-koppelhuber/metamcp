@@ -1,5 +1,5 @@
 # Use the official uv image as base
-FROM ghcr.io/astral-sh/uv:debian AS base
+FROM ghcr.io/astral-sh/uv:debian@sha256:f09daa206efebee043d8e39ce5d71af377600e596fd22d504f7542a0886edc65 AS base
 
 # Install Node.js and pnpm directly
 RUN apt-get update && apt-get install -y \
